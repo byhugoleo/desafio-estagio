@@ -51,10 +51,8 @@ or <b>=</b>) at the beginning of each of your search values to specify how the c
 		'email',
 		'telefone',
 		'status',
-		/*
 		'data_hora_status',
-		'obs',
-		*/
+		// 'obs',
 		array(
 			'class'=>'CButtonColumn',
 		),
