@@ -36,8 +36,7 @@
 	<?php /*
 	<b><?php echo CHtml::encode($data->getAttributeLabel('obs')); ?>:</b>
 	<?php echo CHtml::encode($data->obs); ?>
-	<br />
-
-	*/ ?>
+	<br />*/ 
+	?>
 
 </div>

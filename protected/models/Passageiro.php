@@ -30,14 +30,13 @@ class Passageiro extends CActiveRecord
 	{
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
-		date_default_timezone_set('America/Sao_Paulo');
 		return array(
 			// geral rules
 			array('nome, nascimento, email, telefone', 'required'),
 			array('email, telefone', 'unique'),
 
 			// attribute nome rules.
-			array('nome', 'length', 'min'=>6, 'max'=>100),
+			array('nome', 'length', 'min'=>6, 'max'=>32),
 			array('nome', 'validateNome'),
 
 			// attribute email rules.
@@ -45,21 +44,18 @@ class Passageiro extends CActiveRecord
 			array('email', 'email'),
 
 			// attribute telefone rules.
-			array('telefone', 'length', 'max'=>16),
+			array('telefone', 'length', 'min'=>14, 'max'=>16),
 			array('telefone', 'validateTelefone'),
 
 			// attribute status rules.
-			array('status', 'filter', 'filter'=>function($value) {return $value ? 'A' : 'I';}),
-
-			// attribute status rules.
-			array('data_hora_status', 'default', 'value'=>date('Y-m-d H:i:s')),
+			array('status', 'length', 'max'=>1, 'min'=>1),
 
 			// atribute obs rules.
 			array('obs', 'length', 'max'=>200),
 
 			// The following rule is used by search().
 			// @todo Please remove those attributes that should not be searched.
-			array('nome, nascimento, email, telefone, status, data_hora_status, obs', 'safe', 'on'=>'search'),
+			array('nome, email, telefone, status', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -68,7 +64,11 @@ class Passageiro extends CActiveRecord
 		$attributeValue = $this->getAttribute($attribute);
 		if (!mb_strlen($attributeValue))
 			return;
-		// TODO: usar expressão regular para verificar se há digitos no nome.
+		$regPattern = '/[\d]+/m';
+		if (preg_match($regPattern, $attributeValue)) {
+			$this->addError($attribute, 'Nome não deve conter números.');
+			return;
+		}
 		$words = explode(' ', $attributeValue);
 		if (count($words) < 2) {
 			$this->addError($attribute, 'Nome deve ter no mínimo duas palavras.');
@@ -85,8 +85,10 @@ class Passageiro extends CActiveRecord
 	public function validateTelefone($attribute)
 	{
 		$attributeValue = $this->getAttribute($attribute);
-		$regPattern = '/^[+\d]+[-]{1}[\d]{1,2}[-]{1}[\d]{8,9}$/m';
-		if (!preg_match_all($regPattern, $attributeValue))
+		if (!mb_strlen($attributeValue))
+			return;
+		$regPattern = '/^[+][\d]{2}[-]{1}[\d]{1,2}[-]{1}[\d]{8,9}$/m';
+		if (!preg_match($regPattern, $attributeValue))
 			$this->addError($attribute, 'Telefone inválido. Esperado: +99-99-999999999');
 	}
 	
@@ -138,12 +140,12 @@ class Passageiro extends CActiveRecord
 
 		$criteria->compare('id',$this->id,true);
 		$criteria->compare('nome',$this->nome,true);
-		$criteria->compare('nascimento',$this->nascimento,true);
+		// $criteria->compare('nascimento',$this->nascimento,true);
 		$criteria->compare('email',$this->email,true);
 		$criteria->compare('telefone',$this->telefone,true);
 		$criteria->compare('status',$this->status,true);
-		$criteria->compare('data_hora_status',$this->data_hora_status,true);
-		$criteria->compare('obs',$this->obs,true);
+		// $criteria->compare('data_hora_status',$this->data_hora_status,true);
+		// $criteria->compare('obs',$this->obs,true);
 
 		return new CActiveDataProvider($this, array(
 			'criteria'=>$criteria,

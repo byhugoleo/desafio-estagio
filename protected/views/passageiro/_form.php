@@ -2,16 +2,13 @@
 /* @var $this PassageiroController */
 /* @var $model Passageiro */
 /* @var $form CActiveForm */
-/* FIXME: ao atualizar o registro, não está sendo atualizado a propriedade
-data_hora_status.
-*/ 
 ?>
 
 <div class="form">
 
 <?php $form=$this->beginWidget('CActiveForm', array(
 	'id'=>'passageiro-form',
-	'focus'=>array($model, 'nome'),
+	'focus'=>array($model,'nome'),
 	// Please note: When you enable ajax validation, make sure the corresponding
 	// controller action is handling ajax validation correctly.
 	// There is a call to performAjaxValidation() commented in generated controller code.
@@ -25,7 +22,7 @@ data_hora_status.
 
 	<div class="row">
 		<?php echo $form->labelEx($model,'nome'); ?>
-		<?php echo $form->textField($model,'nome',array('size'=>60,'maxlength'=>100)); ?>
+		<?php echo $form->textField($model,'nome',array('size'=>32,'maxlength'=>32)); ?>
 		<?php echo $form->error($model,'nome'); ?>
 	</div>
 
@@ -49,7 +46,12 @@ data_hora_status.
 
 	<div class="row">
 		<?php echo $form->labelEx($model,'status'); ?>
-		<?php echo CHtml::activeDropDownList($model,'status',array('I','A'),array('size'=>1,'maxlength'=>1,'disabled'=>$model->isNewRecord?true:false)); ?>
+		<?php
+		$status_value1 = $model->attributes['status'];
+		$status_value2 = (($status_value1 == 'A') ? 'I' : 'A');
+		$status_arr = [$status_value1 => $status_value1, $status_value2 => $status_value2];
+		?>
+		<?php echo CHtml::activeDropDownList($model,'status',$status_arr,array('size'=>1,'maxlength'=>1,'disabled'=>($model->isNewRecord?true:false))); ?>
 		<?php echo $form->error($model,'status'); ?>
 	</div>
 
