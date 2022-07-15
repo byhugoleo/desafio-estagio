@@ -16,6 +16,46 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
+-- Table structure for table `corrida`
+--
+
+DROP TABLE IF EXISTS `corrida`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `corrida` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `passageiro_id` bigint(20) unsigned NOT NULL,
+  `motorista_id` bigint(20) unsigned DEFAULT NULL,
+  `origem_endereco` varchar(255) NOT NULL,
+  `origem_lat` varchar(16) NOT NULL,
+  `origem_lng` varchar(16) NOT NULL,
+  `destino_endereco` varchar(255) NOT NULL,
+  `destino_lat` varchar(16) NOT NULL,
+  `destino_lng` varchar(16) NOT NULL,
+  `data_hora_incio` datetime DEFAULT NULL,
+  `status` varchar(12) NOT NULL,
+  `previsao_chegada` datetime DEFAULT NULL,
+  `tarifa` varchar(8) DEFAULT NULL,
+  `data_hora_finalizacao` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `motorista_id` (`passageiro_id`),
+  KEY `passageiro_id` (`motorista_id`),
+  CONSTRAINT `motorista_id` FOREIGN KEY (`passageiro_id`) REFERENCES `motorista` (`id`),
+  CONSTRAINT `passageiro_id` FOREIGN KEY (`motorista_id`) REFERENCES `passageiro` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `corrida`
+--
+
+LOCK TABLES `corrida` WRITE;
+/*!40000 ALTER TABLE `corrida` DISABLE KEYS */;
+INSERT INTO `corrida` VALUES (1,1,1,'Rua da Assembleia, 10 - Centro','-27.0656','-43.0343','Rua Santa Clara, 274 - Copacabana','-27.3330','-42.9878','2022-07-15 16:37:00','Em andamento','2022-07-15 19:10:00','141.691',NULL);
+/*!40000 ALTER TABLE `corrida` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `motorista`
 --
 
@@ -36,8 +76,18 @@ CREATE TABLE `motorista` (
   UNIQUE KEY `email` (`email`),
   UNIQUE KEY `telefone` (`telefone`),
   UNIQUE KEY `placa_veiculo` (`placa_veiculo`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `motorista`
+--
+
+LOCK TABLES `motorista` WRITE;
+/*!40000 ALTER TABLE `motorista` DISABLE KEYS */;
+INSERT INTO `motorista` VALUES (1,'Robert Silva','1987-09-09','robertsilva@hotmail.com','+38-9-95314324','MYW-5941','A','2022-07-15 12:34:23','');
+/*!40000 ALTER TABLE `motorista` ENABLE KEYS */;
+UNLOCK TABLES;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
 /*!50003 SET @saved_col_connection = @@collation_connection */ ;
@@ -80,8 +130,18 @@ CREATE TABLE `passageiro` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `email` (`email`),
   UNIQUE KEY `telefone` (`telefone`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `passageiro`
+--
+
+LOCK TABLES `passageiro` WRITE;
+/*!40000 ALTER TABLE `passageiro` DISABLE KEYS */;
+INSERT INTO `passageiro` VALUES (1,'Hugo Leonardo','1999-03-09','hugoleonardo@gaudium.com.br','+38-9-97365419','A','2022-07-15 12:01:03',''),(2,'Lúcia Esteves','2000-02-24','lucia@gmail.com','+38-9-94234373','A','2022-07-14 12:57:15','');
+/*!40000 ALTER TABLE `passageiro` ENABLE KEYS */;
+UNLOCK TABLES;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
 /*!50003 SET @saved_col_connection = @@collation_connection */ ;
@@ -122,4 +182,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2022-07-14 12:06:14
+-- Dump completed on 2022-07-15 16:42:39
