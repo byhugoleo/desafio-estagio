@@ -20,6 +20,18 @@
 	<?php echo $form->errorSummary($model); ?>
 
 	<div class="row">
+		<?php echo $form->labelEx($model,'passageiro_id'); ?>
+		<?php echo $form->textField($model,'passageiro_id',array('size'=>20,'maxlength'=>20)); ?>
+		<?php echo $form->error($model,'passageiro_id'); ?>
+	</div>
+
+	<div class="row">
+		<?php echo $form->labelEx($model,'motorista_id'); ?>
+		<?php echo $form->textField($model,'motorista_id',array('size'=>20,'maxlength'=>20)); ?>
+		<?php echo $form->error($model,'motorista_id'); ?>
+	</div>
+
+	<div class="row">
 		<?php echo $form->labelEx($model,'origem_endereco'); ?>
 		<?php echo $form->textField($model,'origem_endereco',array('size'=>60,'maxlength'=>255)); ?>
 		<?php echo $form->error($model,'origem_endereco'); ?>
@@ -27,13 +39,13 @@
 
 	<div class="row">
 		<?php echo $form->labelEx($model,'origem_lat'); ?>
-		<?php echo $form->textField($model,'origem_lat',array('size'=>10,'maxlength'=>10)); ?>
+		<?php echo $form->textField($model,'origem_lat',array('size'=>16,'maxlength'=>16)); ?>
 		<?php echo $form->error($model,'origem_lat'); ?>
 	</div>
 
 	<div class="row">
 		<?php echo $form->labelEx($model,'origem_lng'); ?>
-		<?php echo $form->textField($model,'origem_lng',array('size'=>10,'maxlength'=>10)); ?>
+		<?php echo $form->textField($model,'origem_lng',array('size'=>16,'maxlength'=>16)); ?>
 		<?php echo $form->error($model,'origem_lng'); ?>
 	</div>
 
@@ -45,13 +57,13 @@
 
 	<div class="row">
 		<?php echo $form->labelEx($model,'destino_lat'); ?>
-		<?php echo $form->textField($model,'destino_lat',array('size'=>10,'maxlength'=>10)); ?>
+		<?php echo $form->textField($model,'destino_lat',array('size'=>16,'maxlength'=>16)); ?>
 		<?php echo $form->error($model,'destino_lat'); ?>
 	</div>
 
 	<div class="row">
 		<?php echo $form->labelEx($model,'destino_lng'); ?>
-		<?php echo $form->textField($model,'destino_lng',array('size'=>10,'maxlength'=>10)); ?>
+		<?php echo $form->textField($model,'destino_lng',array('size'=>16,'maxlength'=>16)); ?>
 		<?php echo $form->error($model,'destino_lng'); ?>
 	</div>
 
@@ -75,7 +87,7 @@
 
 	<div class="row">
 		<?php echo $form->labelEx($model,'tarifa'); ?>
-		<?php echo $form->textField($model,'tarifa',array('size'=>10,'maxlength'=>10)); ?>
+		<?php echo $form->textField($model,'tarifa',array('size'=>8,'maxlength'=>8)); ?>
 		<?php echo $form->error($model,'tarifa'); ?>
 	</div>
 

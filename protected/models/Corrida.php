@@ -5,6 +5,8 @@
  *
  * The followings are the available columns in table 'corrida':
  * @property string $id
+ * @property string $passageiro_id
+ * @property string $motorista_id
  * @property string $origem_endereco
  * @property string $origem_lat
  * @property string $origem_lng
@@ -18,8 +20,8 @@
  * @property string $data_hora_finalizacao
  *
  * The followings are the available model relations:
- * @property Passageiro $passageiro_id
- * @property Motorista $motorista_id
+ * @property Motorista $passageiro
+ * @property Passageiro $motorista
  */
 class Corrida extends CActiveRecord
 {
@@ -39,14 +41,16 @@ class Corrida extends CActiveRecord
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('origem_endereco, origem_lat, origem_lng, destino_endereco, destino_lat, destino_lng, status', 'required'),
+			array('passageiro_id, origem_endereco, origem_lat, origem_lng, destino_endereco, destino_lat, destino_lng, status', 'required'),
+			array('passageiro_id, motorista_id', 'length', 'max'=>20),
 			array('origem_endereco, destino_endereco', 'length', 'max'=>255),
-			array('origem_lat, origem_lng, destino_lat, destino_lng, tarifa', 'length', 'max'=>10),
+			array('origem_lat, origem_lng, destino_lat, destino_lng', 'length', 'max'=>16),
 			array('status', 'length', 'max'=>12),
+			array('tarifa', 'length', 'max'=>8),
 			array('data_hora_incio, previsao_chegada, data_hora_finalizacao', 'safe'),
 			// The following rule is used by search().
 			// @todo Please remove those attributes that should not be searched.
-			array('id, origem_endereco, origem_lat, origem_lng, destino_endereco, destino_lat, destino_lng, data_hora_incio, status, previsao_chegada, tarifa, data_hora_finalizacao', 'safe', 'on'=>'search'),
+			array('id, passageiro_id, motorista_id, origem_endereco, origem_lat, origem_lng, destino_endereco, destino_lat, destino_lng, data_hora_incio, status, previsao_chegada, tarifa, data_hora_finalizacao', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -58,8 +62,8 @@ class Corrida extends CActiveRecord
 		// NOTE: you may need to adjust the relation name and the related
 		// class name for the relations automatically generated below.
 		return array(
-			'passageiro_id' => array(self::BELONGS_TO, 'Passageiro', 'id'),
-			'motorista_id' => array(self::BELONGS_TO, 'Motrista', 'id')
+			'passageiro' => array(self::BELONGS_TO, 'Motorista', 'passageiro_id'),
+			'motorista' => array(self::BELONGS_TO, 'Passageiro', 'motorista_id'),
 		);
 	}
 
@@ -70,6 +74,8 @@ class Corrida extends CActiveRecord
 	{
 		return array(
 			'id' => 'ID',
+			'passageiro_id' => 'Passageiro',
+			'motorista_id' => 'Motorista',
 			'origem_endereco' => 'Origem Endereco',
 			'origem_lat' => 'Origem Lat',
 			'origem_lng' => 'Origem Lng',
@@ -103,6 +109,8 @@ class Corrida extends CActiveRecord
 		$criteria=new CDbCriteria;
 
 		$criteria->compare('id',$this->id,true);
+		$criteria->compare('passageiro_id',$this->passageiro_id,true);
+		$criteria->compare('motorista_id',$this->motorista_id,true);
 		$criteria->compare('origem_endereco',$this->origem_endereco,true);
 		$criteria->compare('origem_lat',$this->origem_lat,true);
 		$criteria->compare('origem_lng',$this->origem_lng,true);

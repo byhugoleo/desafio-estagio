@@ -17,18 +17,28 @@
 	</div>
 
 	<div class="row">
+		<?php echo $form->label($model,'passageiro_id'); ?>
+		<?php echo $form->textField($model,'passageiro_id',array('size'=>20,'maxlength'=>20)); ?>
+	</div>
+
+	<div class="row">
+		<?php echo $form->label($model,'motorista_id'); ?>
+		<?php echo $form->textField($model,'motorista_id',array('size'=>20,'maxlength'=>20)); ?>
+	</div>
+
+	<div class="row">
 		<?php echo $form->label($model,'origem_endereco'); ?>
 		<?php echo $form->textField($model,'origem_endereco',array('size'=>60,'maxlength'=>255)); ?>
 	</div>
 
 	<div class="row">
 		<?php echo $form->label($model,'origem_lat'); ?>
-		<?php echo $form->textField($model,'origem_lat',array('size'=>10,'maxlength'=>10)); ?>
+		<?php echo $form->textField($model,'origem_lat',array('size'=>16,'maxlength'=>16)); ?>
 	</div>
 
 	<div class="row">
 		<?php echo $form->label($model,'origem_lng'); ?>
-		<?php echo $form->textField($model,'origem_lng',array('size'=>10,'maxlength'=>10)); ?>
+		<?php echo $form->textField($model,'origem_lng',array('size'=>16,'maxlength'=>16)); ?>
 	</div>
 
 	<div class="row">
@@ -38,12 +48,12 @@
 
 	<div class="row">
 		<?php echo $form->label($model,'destino_lat'); ?>
-		<?php echo $form->textField($model,'destino_lat',array('size'=>10,'maxlength'=>10)); ?>
+		<?php echo $form->textField($model,'destino_lat',array('size'=>16,'maxlength'=>16)); ?>
 	</div>
 
 	<div class="row">
 		<?php echo $form->label($model,'destino_lng'); ?>
-		<?php echo $form->textField($model,'destino_lng',array('size'=>10,'maxlength'=>10)); ?>
+		<?php echo $form->textField($model,'destino_lng',array('size'=>16,'maxlength'=>16)); ?>
 	</div>
 
 	<div class="row">
@@ -63,7 +73,7 @@
 
 	<div class="row">
 		<?php echo $form->label($model,'tarifa'); ?>
-		<?php echo $form->textField($model,'tarifa',array('size'=>10,'maxlength'=>10)); ?>
+		<?php echo $form->textField($model,'tarifa',array('size'=>8,'maxlength'=>8)); ?>
 	</div>
 
 	<div class="row">

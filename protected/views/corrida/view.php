@@ -22,6 +22,8 @@ $this->menu=array(
 	'data'=>$model,
 	'attributes'=>array(
 		'id',
+		'passageiro_id',
+		'motorista_id',
 		'origem_endereco',
 		'origem_lat',
 		'origem_lng',

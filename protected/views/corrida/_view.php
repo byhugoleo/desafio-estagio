@@ -9,6 +9,14 @@
 	<?php echo CHtml::link(CHtml::encode($data->id), array('view', 'id'=>$data->id)); ?>
 	<br />
 
+	<b><?php echo CHtml::encode($data->getAttributeLabel('passageiro_id')); ?>:</b>
+	<?php echo CHtml::encode($data->passageiro_id); ?>
+	<br />
+
+	<b><?php echo CHtml::encode($data->getAttributeLabel('motorista_id')); ?>:</b>
+	<?php echo CHtml::encode($data->motorista_id); ?>
+	<br />
+
 	<b><?php echo CHtml::encode($data->getAttributeLabel('origem_endereco')); ?>:</b>
 	<?php echo CHtml::encode($data->origem_endereco); ?>
 	<br />
@@ -25,6 +33,7 @@
 	<?php echo CHtml::encode($data->destino_endereco); ?>
 	<br />
 
+	<?php /*
 	<b><?php echo CHtml::encode($data->getAttributeLabel('destino_lat')); ?>:</b>
 	<?php echo CHtml::encode($data->destino_lat); ?>
 	<br />
@@ -33,7 +42,6 @@
 	<?php echo CHtml::encode($data->destino_lng); ?>
 	<br />
 
-	<?php /*
 	<b><?php echo CHtml::encode($data->getAttributeLabel('data_hora_incio')); ?>:</b>
 	<?php echo CHtml::encode($data->data_hora_incio); ?>
 	<br />

@@ -46,12 +46,14 @@ or <b>=</b>) at the beginning of each of your search values to specify how the c
 	'filter'=>$model,
 	'columns'=>array(
 		'id',
+		'passageiro_id',
+		'motorista_id',
 		'origem_endereco',
 		'origem_lat',
 		'origem_lng',
+		/*
 		'destino_endereco',
 		'destino_lat',
-		/*
 		'destino_lng',
 		'data_hora_incio',
 		'status',
