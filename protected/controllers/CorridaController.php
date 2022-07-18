@@ -27,7 +27,7 @@ class CorridaController extends Controller
 	{
 		return array(
 			array('allow',  // allow all users to perform 'index' and 'view' actions
-				'actions'=>array('index','view', 'staticcreate'),
+				'actions'=>array('index','view', 'solicitarcorrida'),
 				'users'=>array('*'),
 			),
 			array('allow', // allow authenticated user to perform 'create' and 'update' actions
@@ -79,23 +79,70 @@ class CorridaController extends Controller
 	}
 
 	/**
-	 * Creates a new model.
-	 * If creation is successful, the browser will be redirected to the 'view' page.
+	 * Solicita uma nova corrida.
 	 */
-	public function actionStaticCreate()
+	public function actionSolicitarCorrida()
 	{
 		$modelCorrida = new Corrida;
 		$corrida_json = json_decode(file_get_contents('php://input'));
+		$corrida_headers = getallheaders();
+	
+		$render_json_falha = function() {
+			header('Content-Type: application/json');
+			echo json_encode(array(
+				'sucesso'=>false, 
+				'erros'=>array(
+					"Nenhum motorista disponível",
+					"Origem deve conter logradouro e bairro",
+					"Origem e destino muito próximos"
+				)
+			), JSON_UNESCAPED_UNICODE);
+		};
+
+		$render_json_sucesso = function($dados) {
+			header('Content-Type: application/json');
+			echo json_encode($dados, JSON_UNESCAPED_UNICODE);
+		};
+		
+		// Verifica o token
+		if ($corrida_headers['token'] != (file_get_contents('protected/config/secrete.txt'))) {
+			$render_json_falha();
+			return;
+		}
+
 		if (isset($corrida_json)) {
-			// Verifica se endereço de destino é diferente do de origem
-			if ($corrida_json->{'origem'}->{'endereco'} == $corrida_json->{'destino'}->{'endereco'})
+			$verificaCorrida = true;
+			// Verifica se passageiro existe
+			$passageiro_id = $corrida_json->{'passageiro'}->{'id'};
+			$passageiro_obj = Passageiro::model()->findByAttributes(array('id'=>$passageiro_id, 'status'=>'A'));
+			if (!isset($passageiro_obj)) {
+				$render_json_falha();
 				return;
+			}
+			
+			// Atribui passageiro
+			$modelCorrida->passageiro = $passageiro_obj;
+			$modelCorrida->passageiro_id = $passageiro_id;
+
+			// Verifica se passageiro já não está em corrida
+			if (Corrida::model()->findByAttributes(array('passageiro_id'=>$passageiro_id, 'status'=>'Em andamento'))) {
+				$render_json_falha();
+				return;
+			}
+
+			// Verifica se endereço de destino é diferente do de origem
+			if ($corrida_json->{'origem'}->{'endereco'} == $corrida_json->{'destino'}->{'endereco'}) {
+				$render_json_falha();
+				return;
+			}
 			$origem_lat = number_format($corrida_json->{'origem'}->{'lat'}, 4, '.', '');
 			$origem_lng = number_format($corrida_json->{'origem'}->{'lng'}, 4, '.', '');
 			$destino_lat = number_format($corrida_json->{'destino'}->{'lat'}, 4, '.', '');
 			$destino_lng = number_format($corrida_json->{'destino'}->{'lng'}, 4, '.', '');
-			if ($origem_lat != $destino_lat && $origem_lng != $origem_lng)
+			if ($origem_lat != $destino_lat && $origem_lng != $origem_lng) {
+				$render_json_falha();
 				return;
+			}
 			
 			// Atribui atributos relacionado a endereço
 			$modelCorrida->origem_endereco = $corrida_json->{'origem'}->{'endereco'};
@@ -121,27 +168,17 @@ class CorridaController extends Controller
 			), 4, '.', '');
 			
 			// Verifica se distancia não é menor ou igual a 100 metros
-			if ((float)$distanciaOrigemDestino <= 0.100)
+			if ((float)$distanciaOrigemDestino <= 0.100) {
+				$render_json_falha();
 				return;
-
-			// Verifica se passageiro existe
-			$passageiro_id = $corrida_json->{'passageiro'}->{'id'};
-			$passageiro_obj = Passageiro::model()->findByAttributes(array('id'=>$passageiro_id, 'status'=>'A'));
-			if (!isset($passageiro_obj))
-				return;
-			
-			// Verifica se passageiro já não está em corrida
-			if (Corrida::model()->findByAttributes(array('passageiro_id'=>$passageiro_id, 'status'=>'Em andamento')))
-				return;
-
-			// Atribui passageiro
-			$modelCorrida->passageiro = $passageiro_obj;
-			$modelCorrida->passageiro_id = $passageiro_id;
+			}
 
 			// Verifica os motoristas ativos
 			$motoristas_obj = Motorista::model()->findAllByAttributes(array('status'=>'A'));
-			if (!isset($motoristas_obj))
+			if (!isset($motoristas_obj)) {
+				$render_json_falha();
 				return;
+			}
 			
 			// Verifica qual motorista está livre
 			$motoristaEscolhido = null;
@@ -160,29 +197,48 @@ class CorridaController extends Controller
 			$modelCorrida->status = isset($motoristaEscolhido) ? 'Em andamento' : 'Não Atendida';
 
 			// Atribui data e hora de início e previsão de chegada
-			date_default_timezone_set('America/Sao_Paulo');
-			$modelCorrida->data_hora_incio = date('Y-m-d H:i');
-			$duracaoCorrida = number_format($distanciaOrigemDestino / 0.2 + 3, 0, '.', '');
-			$tempoPrevisao = new DateInterval('PT' . $duracaoCorrida . 'M');
-			$modelCorrida->previsao_chegada = (new DateTime($modelCorrida->data_hora_incio))->add($tempoPrevisao)->format('Y-m-d H:i');
-			
-			// Verifica corrida se tem duração maior que 8 horas.
-			if (($duracaoCorrida / 60) > 8)
+			if (isset($motoristaEscolhido)) {
+				date_default_timezone_set('America/Sao_Paulo');
+				$modelCorrida->data_hora_incio = date('Y-m-d H:i');
+				$duracaoCorrida = number_format($distanciaOrigemDestino / 0.2 + 3, 0, '.', '');
+				$tempoPrevisao = new DateInterval('PT' . $duracaoCorrida . 'M');
+				$modelCorrida->previsao_chegada = (new DateTime($modelCorrida->data_hora_incio))->add($tempoPrevisao)->format('Y-m-d H:i');
+				
+				// Verifica corrida se tem duração maior que 8 horas.
+				if (($duracaoCorrida / 60) > 8) {
+					$render_json_falha();
+					return;
+				}
+
+				// Atribui tarifa
+				$tarifa = 2 * $distanciaOrigemDestino + 0.5 * $duracaoCorrida + 5;
+				$modelCorrida->tarifa = $tarifa;
+			}
+
+			if($modelCorrida->save()) {
+				if (isset($motoristaEscolhido)) {
+					$render_json_sucesso(array(
+						'sucesso'=>true,
+						'corrida'=>array(
+							'id'=>$modelCorrida->id, 
+							'previsao_chegada_destino'=>$modelCorrida->previsao_chegada
+						),
+						'motorista'=>array(
+							'nome'=>$motoristaEscolhido['nome'],
+							'placa'=>$motoristaEscolhido['placa_veiculo'],
+							'quantidade_corridas'=>count($modelCorrida->findAllByPk($motoristaEscolhido['id']))
+						)
+					));
+				} else
+					$render_json_falha();
+				Yii::app()->end();
 				return;
-
-			// Atribui tarifa
-			$tarifa = 2 * $distanciaOrigemDestino + 0.5 * $duracaoCorrida + 5;
-			$modelCorrida->tarifa = $tarifa;
-
-			if($modelCorrida->save())
-				$this->redirect(array('view','id'=>$modelCorrida->id));
+			}
 		}
-
-		$this->render('create',array(
-			'model'=>$modelCorrida,
-		));
+		$render_json_falha();
+		Yii::app()->end();
 	}
-
+	
 	/**
 	 * Updates a particular model.
 	 * If update is successful, the browser will be redirected to the 'view' page.
