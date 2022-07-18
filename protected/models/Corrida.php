@@ -20,8 +20,8 @@
  * @property string $data_hora_finalizacao
  *
  * The followings are the available model relations:
- * @property Motorista $passageiro
- * @property Passageiro $motorista
+ * @property Motorista $motorista
+ * @property Passageiro $passageiro
  */
 class Corrida extends CActiveRecord
 {
@@ -62,8 +62,8 @@ class Corrida extends CActiveRecord
 		// NOTE: you may need to adjust the relation name and the related
 		// class name for the relations automatically generated below.
 		return array(
-			'passageiro' => array(self::BELONGS_TO, 'Motorista', 'passageiro_id'),
-			'motorista' => array(self::BELONGS_TO, 'Passageiro', 'motorista_id'),
+			'motorista' => array(self::BELONGS_TO, 'Motorista', 'motorista_id'),
+			'passageiro' => array(self::BELONGS_TO, 'Passageiro', 'passageiro_id'),
 		);
 	}
 
