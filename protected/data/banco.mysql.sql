@@ -40,9 +40,9 @@ CREATE TABLE `corrida` (
   PRIMARY KEY (`id`),
   KEY `motorista_id` (`passageiro_id`),
   KEY `passageiro_id` (`motorista_id`),
-  CONSTRAINT `motorista_id` FOREIGN KEY (`passageiro_id`) REFERENCES `motorista` (`id`),
-  CONSTRAINT `passageiro_id` FOREIGN KEY (`motorista_id`) REFERENCES `passageiro` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+  CONSTRAINT `motorista_id` FOREIGN KEY (`motorista_id`) REFERENCES `motorista` (`id`),
+  CONSTRAINT `passageiro_id` FOREIGN KEY (`passageiro_id`) REFERENCES `passageiro` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -51,7 +51,6 @@ CREATE TABLE `corrida` (
 
 LOCK TABLES `corrida` WRITE;
 /*!40000 ALTER TABLE `corrida` DISABLE KEYS */;
-INSERT INTO `corrida` VALUES (1,1,1,'Rua da Assembleia, 10 - Centro','-27.0656','-43.0343','Rua Santa Clara, 274 - Copacabana','-27.3330','-42.9878','2022-07-15 16:37:00','Em andamento','2022-07-15 19:10:00','141.691',NULL);
 /*!40000 ALTER TABLE `corrida` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -182,4 +181,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2022-07-15 16:42:39
+-- Dump completed on 2022-07-18 15:01:31
