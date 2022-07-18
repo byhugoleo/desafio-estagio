@@ -87,15 +87,11 @@ class CorridaController extends Controller
 		$corrida_json = json_decode(file_get_contents('php://input'));
 		$corrida_headers = getallheaders();
 	
-		$render_json_falha = function() {
-			header('Content-Type: application/json');
+		$render_json_falha = function($erro) {
+			header('Content-Type: application/json', true, 400);
 			echo json_encode(array(
 				'sucesso'=>false, 
-				'erros'=>array(
-					"Nenhum motorista disponível",
-					"Origem deve conter logradouro e bairro",
-					"Origem e destino muito próximos"
-				)
+				'erros'=>$erro
 			), JSON_UNESCAPED_UNICODE);
 		};
 
@@ -106,13 +102,13 @@ class CorridaController extends Controller
 
 		// Verifica json recebido
 		if (!isset($corrida_json)) {
-			$render_json_falha();
+			$render_json_falha('Erro com json');
 			return;
 		}
 		
 		// Verifica o token
 		if ($corrida_headers['token'] != (file_get_contents('protected/config/secret.txt'))) {
-			$render_json_falha();
+			$render_json_falha('Erro de autentiacação de token');
 			return;
 		}
 
@@ -120,7 +116,7 @@ class CorridaController extends Controller
 		$passageiro_id = $corrida_json->{'passageiro'}->{'id'};
 		$passageiro_obj = Passageiro::model()->findByAttributes(array('id'=>$passageiro_id, 'status'=>'A'));
 		if (!isset($passageiro_obj)) {
-			$render_json_falha();
+			$render_json_falha('Passageiro inativo ou inexistente');
 			return;
 		}
 		
@@ -130,13 +126,13 @@ class CorridaController extends Controller
 
 		// Verifica se passageiro já não está em corrida
 		if (Corrida::model()->findByAttributes(array('passageiro_id'=>$passageiro_id, 'status'=>'Em andamento'))) {
-			$render_json_falha();
+			$render_json_falha('Passageiro já em corrida');
 			return;
 		}
 
 		// Verifica se endereço de destino é diferente do de origem
 		if ($corrida_json->{'origem'}->{'endereco'} == $corrida_json->{'destino'}->{'endereco'}) {
-			$render_json_falha();
+			$render_json_falha('Endereço de destino e origem são iguais');
 			return;
 		}
 		$origem_lat = number_format($corrida_json->{'origem'}->{'lat'}, 4, '.', '');
@@ -144,7 +140,7 @@ class CorridaController extends Controller
 		$destino_lat = number_format($corrida_json->{'destino'}->{'lat'}, 4, '.', '');
 		$destino_lng = number_format($corrida_json->{'destino'}->{'lng'}, 4, '.', '');
 		if ($origem_lat != $destino_lat && $origem_lng != $origem_lng) {
-			$render_json_falha();
+			$render_json_falha('Coordenadas iguais');
 			return;
 		}
 		
@@ -173,14 +169,14 @@ class CorridaController extends Controller
 		
 		// Verifica se distancia não é menor ou igual a 100 metros
 		if ((float)$distanciaOrigemDestino <= 0.100) {
-			$render_json_falha();
+			$render_json_falha('Origem e destino muito próximos');
 			return;
 		}
 
 		// Verifica os motoristas ativos
 		$motoristas_obj = Motorista::model()->findAllByAttributes(array('status'=>'A'));
 		if (!isset($motoristas_obj)) {
-			$render_json_falha();
+			$render_json_falha('Nenhum motorista disponível');
 			return;
 		}
 		
@@ -210,7 +206,7 @@ class CorridaController extends Controller
 			
 			// Verifica corrida se tem duração maior que 8 horas.
 			if (($duracaoCorrida / 60) > 8) {
-				$render_json_falha();
+				$render_json_falha('Duração da corrida superior a 8 horas');
 				return;
 			}
 
@@ -233,11 +229,12 @@ class CorridaController extends Controller
 						'quantidade_corridas'=>count($modelCorrida->findAllByPk($motoristaEscolhido['id']))
 					)
 				));
-				Yii::app()->end();
-				return;
-			}
+			} else
+				$render_json_falha('Corrida não atendida');
+			Yii::app()->end();
+			return;
 		}
-		$render_json_falha();
+		$render_json_falha('Falha ao salvar corrida');
 		Yii::app()->end();
 	}
 
@@ -246,32 +243,28 @@ class CorridaController extends Controller
 		$corrida_json = json_decode(file_get_contents('php://input'));
 		$corrida_headers = getallheaders();
 	
-		$render_json_falha = function() {
-			header('Content-Type: application/json');
+		$render_json_falha = function($erro) {
+			header('Content-Type: application/json', true, 400);
 			echo json_encode(array(
 				'sucesso'=>false, 
-				'erros'=>array(
-					"Motorista não corresponde à corrida",
-					"Corrida já finalizada",
-					"Corrida não existe"
-				)
+				'erros'=>$erro
 			), JSON_UNESCAPED_UNICODE);
 		};
 
 		$render_json_sucesso = function() {
 			header('Content-Type: application/json');
-			echo json_encode('true');
+			echo json_encode(['sucesso'=>true]);
 		};
 
 		// Verifica json recebido
 		if (!isset($corrida_json)) {
-			$render_json_falha();
+			$render_json_falha('Erro com json');
 			return;
 		}
 		
 		// Verifica o token
 		if ($corrida_headers['token'] != (file_get_contents('protected/config/secret.txt'))) {
-			$render_json_falha();
+			$render_json_falha('Erro de autentiacação de token');
 			return;
 		}
 
@@ -281,19 +274,19 @@ class CorridaController extends Controller
 
 		// Verifica se há corrida com o id recebido
 		if (!isset($corrida)) {
-			$render_json_falha();
+			$render_json_falha('Não há corridas com essa identificação');
 			return;
 		}
 		
 		// Verifica se o motorista recebido é o mesmo da corrida
 		if ($motorista_id != $corrida['motorista_id']) {
-			$render_json_falha();
+			$render_json_falha('Motorista recebido diferente da corrida');
 			return;
 		}
 
 		// Verifica o status da corrida se não está em andamento
 		if ($corrida['status'] != 'Em andamento') {
-			$render_json_falha();
+			$render_json_falha('Corrida tem status de ' . $corrida['status']);
 			return;
 		}
 
@@ -305,7 +298,7 @@ class CorridaController extends Controller
 			return;
 		}
 
-		$render_json_falha();
+		$render_json_falha('Erro ao atualizar corrida');
 		Yii::app()->end();
 	}
 
