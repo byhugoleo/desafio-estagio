@@ -27,7 +27,7 @@ class CorridaController extends Controller
 	{
 		return array(
 			array('allow',  // allow all users to perform 'index' and 'view' actions
-				'actions'=>array('index','view', 'solicitarcorrida'),
+				'actions'=>array('index','view', 'solicitarcorrida', 'finalizarcorrida'),
 				'users'=>array('*'),
 			),
 			array('allow', // allow authenticated user to perform 'create' and 'update' actions
@@ -111,7 +111,7 @@ class CorridaController extends Controller
 		}
 		
 		// Verifica o token
-		if ($corrida_headers['token'] != (file_get_contents('protected/config/secrete.txt'))) {
+		if ($corrida_headers['token'] != (file_get_contents('protected/config/secret.txt'))) {
 			$render_json_falha();
 			return;
 		}
@@ -233,9 +233,78 @@ class CorridaController extends Controller
 						'quantidade_corridas'=>count($modelCorrida->findAllByPk($motoristaEscolhido['id']))
 					)
 				));
+				Yii::app()->end();
 				return;
 			}
 		}
+		$render_json_falha();
+		Yii::app()->end();
+	}
+
+	public function actionFinalizarCorrida()
+	{
+		$corrida_json = json_decode(file_get_contents('php://input'));
+		$corrida_headers = getallheaders();
+	
+		$render_json_falha = function() {
+			header('Content-Type: application/json');
+			echo json_encode(array(
+				'sucesso'=>false, 
+				'erros'=>array(
+					"Motorista não corresponde à corrida",
+					"Corrida já finalizada",
+					"Corrida não existe"
+				)
+			), JSON_UNESCAPED_UNICODE);
+		};
+
+		$render_json_sucesso = function() {
+			header('Content-Type: application/json');
+			echo json_encode('true');
+		};
+
+		// Verifica json recebido
+		if (!isset($corrida_json)) {
+			$render_json_falha();
+			return;
+		}
+		
+		// Verifica o token
+		if ($corrida_headers['token'] != (file_get_contents('protected/config/secret.txt'))) {
+			$render_json_falha();
+			return;
+		}
+
+		$corrida_id = $corrida_json->{'corrida'}->{'id'};
+		$motorista_id = $corrida_json->{'motorista'}->{'id'};
+		$corrida = Corrida::model()->findByPk($corrida_id);
+
+		// Verifica se há corrida com o id recebido
+		if (!isset($corrida)) {
+			$render_json_falha();
+			return;
+		}
+		
+		// Verifica se o motorista recebido é o mesmo da corrida
+		if ($motorista_id != $corrida['motorista_id']) {
+			$render_json_falha();
+			return;
+		}
+
+		// Verifica o status da corrida se não está em andamento
+		if ($corrida['status'] != 'Em andamento') {
+			$render_json_falha();
+			return;
+		}
+
+		$corrida['status'] = 'Finalizada';
+
+		if($corrida->save()) {
+			$render_json_sucesso();
+			Yii::app()->end();
+			return;
+		}
+
 		$render_json_falha();
 		Yii::app()->end();
 	}
